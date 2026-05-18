@@ -479,9 +479,13 @@ const ILLUSTRATIONS: Record<string, IllustrationSet> = {
   },
 };
 
-// Alias map: handle alternate activity_id spellings from the database
+// Alias map: handle alternate activity_id spellings from the database.
+// Add your own here if your DB uses different IDs.
 const ALIAS_MAP: Record<string, string> = {
   prospecting: 'call',
+  calls: 'call',
+  'social-prospecting': 'social-appt',
+  'social-media-posting': 'social-media-post',
 };
 
 export function hasActivityIllustration(activityId: string): boolean {
