@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>sales-activity-icons — demo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root { color-scheme: light dark; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    background: linear-gradient(135deg, #f8f5ff 0%, #f5f1e6 100%);
+    margin: 0;
+    padding: 2rem;
+    color: #1a1a2e;
+  }
+  h1 { margin: 0 0 0.25rem; font-size: 1.5rem; }
+  p.sub { margin: 0 0 2rem; color: #555; font-size: 0.9rem; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1.5rem;
+    max-width: 1100px;
+  }
+  .card {
+    background: white;
+    border-radius: 16px;
+    padding: 1rem;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(80, 40, 150, 0.08);
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(80, 40, 150, 0.15);
+  }
+  .card.celebrating { box-shadow: 0 0 0 3px #FFD64D, 0 8px 20px rgba(255, 169, 77, 0.4); }
+  .icon {
+    width: 96px;
+    height: 96px;
+    margin: 0 auto 0.5rem;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 8px 18px rgba(80, 40, 150, 0.15);
+    border: 2px solid rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease-out;
+  }
+  .card.celebrating .icon { animation: pop 0.7s cubic-bezier(.34, 1.56, .64, 1); }
+  @keyframes pop {
+    0%, 100% { transform: scale(1); }
+    35% { transform: scale(1.10); }
+    65% { transform: scale(0.98); }
+  }
+  .icon svg { width: 64%; height: 64%; }
+  .name { font-weight: 600; font-size: 0.9rem; }
+  .id { font-size: 0.75rem; color: #888; font-family: ui-monospace, monospace; }
+  .toggle {
+    margin: 0 0 2rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid #ccc;
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+  .toggle.on { background: #355A99; color: white; border-color: #355A99; }
+  .note {
+    margin-top: 2rem;
+    padding: 1rem;
+    background: rgba(53, 90, 153, 0.08);
+    border-left: 3px solid #355A99;
+    border-radius: 0 8px 8px 0;
+    font-size: 0.85rem;
+    color: #355A99;
+    max-width: 800px;
+  }
+</style>
+</head>
+<body>
+  <h1>sales-activity-icons</h1>
+  <p class="sub">Tap a card to toggle <code>isCelebrating</code>. Hit the button to flip them all.</p>
+  <button class="toggle" id="celebrate-all">Celebrate all</button>
+  <div class="grid" id="grid"></div>
+  <div class="note">
+    This static preview uses placeholder pills with each icon's colour
+    gradient and initials. The real React component renders the full
+    hand-drawn SVGs — see <code>src/ActivityIllustration.tsx</code> for
+    the artwork.
+  </div>
+
+<script>
+  const ICONS = [
+    { id: 'call', label: 'Call', tint: 'sky' },
+    { id: 'set', label: 'Set Appointment', tint: 'rose' },
+    { id: 'referral', label: 'Referral', tint: 'rose' },
+    { id: 'opening', label: 'Opening', tint: 'peach' },
+    { id: 'closing', label: 'Closing', tint: 'butter' },
+    { id: 'closed', label: 'Closed', tint: 'butter' },
+    { id: 'client-servicing', label: 'Client Servicing', tint: 'lavender' },
+    { id: 'social-media-post', label: 'Social Media Post', tint: 'sky' },
+    { id: 'social-appt', label: 'Social Appointment', tint: 'sky' },
+    { id: 'hangout', label: 'Hangout', tint: 'rose' },
+    { id: 'roleplay', label: 'Roleplay', tint: 'lavender' },
+    { id: 'story', label: 'Story', tint: 'peach' },
+  ];
+
+  const GRADIENT_STOPS = {
+    rose:     ['#FFE0DD', '#FF8FA0'],
+    peach:    ['#FFE7CF', '#FFB37A'],
+    sky:      ['#DEEAFB', '#7AA8E6'],
+    mint:     ['#D9F4E0', '#82D097'],
+    butter:   ['#FFF1B8', '#FFC53D'],
+    lavender: ['#E8DEFF', '#A989E6'],
+    gold:     ['#FFE57A', '#C4A24D'],
+  };
+
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+  function svgEl(name, attrs) {
+    const el = document.createElementNS(SVG_NS, name);
+    Object.entries(attrs || {}).forEach(([k, v]) => el.setAttribute(k, v));
+    return el;
+  }
+
+  function buildIconSvg(icon) {
+    const svg = svgEl('svg', { viewBox: '0 0 64 64' });
+    const defs = svgEl('defs');
+    const grad = svgEl('radialGradient', { id: `cg-${icon.id}`, cx: '35%', cy: '30%' });
+    const [from, to] = GRADIENT_STOPS[icon.tint];
+    grad.appendChild(svgEl('stop', { offset: '0%', 'stop-color': from }));
+    grad.appendChild(svgEl('stop', { offset: '100%', 'stop-color': to }));
+    defs.appendChild(grad);
+    svg.appendChild(defs);
+    svg.appendChild(svgEl('circle', { cx: '32', cy: '32', r: '22', fill: `url(#cg-${icon.id})` }));
+    const text = svgEl('text', {
+      x: '32', y: '38',
+      'font-size': '11', 'font-weight': '700',
+      'text-anchor': 'middle', fill: '#3A2A2A',
+    });
+    text.textContent = icon.label.split(' ').map((w) => w[0]).join('');
+    svg.appendChild(text);
+    return svg;
+  }
+
+  const grid = document.getElementById('grid');
+  ICONS.forEach((icon) => {
+    const card = document.createElement('div');
+    card.className = 'card';
+
+    const iconWrap = document.createElement('div');
+    iconWrap.className = 'icon';
+    iconWrap.appendChild(buildIconSvg(icon));
+    card.appendChild(iconWrap);
+
+    const name = document.createElement('div');
+    name.className = 'name';
+    name.textContent = icon.label;
+    card.appendChild(name);
+
+    const idEl = document.createElement('div');
+    idEl.className = 'id';
+    idEl.textContent = icon.id;
+    card.appendChild(idEl);
+
+    card.addEventListener('click', () => card.classList.toggle('celebrating'));
+    grid.appendChild(card);
+  });
+
+  document.getElementById('celebrate-all').addEventListener('click', (e) => {
+    const cards = document.querySelectorAll('.card');
+    const allOn = [...cards].every((c) => c.classList.contains('celebrating'));
+    cards.forEach((c) => c.classList.toggle('celebrating', !allOn));
+    e.target.classList.toggle('on', !allOn);
+  });
+</script>
+</body>
+</html>

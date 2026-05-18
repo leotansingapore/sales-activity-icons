@@ -1,0 +1,36 @@
+{
+  "name": "sales-activity-icons",
+  "version": "0.1.0",
+  "description": "Hand-drawn clay-style SVG illustrations for sales/CRM activity tracking — calls, appointments, referrals, closes. React component, idle + happy variants, zero runtime dependencies.",
+  "license": "MIT",
+  "author": "Leo Tan",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/leotansingapore/sales-activity-icons.git"
+  },
+  "keywords": [
+    "react",
+    "icons",
+    "illustrations",
+    "svg",
+    "sales",
+    "crm",
+    "activity-tracker",
+    "claymation",
+    "tailwind"
+  ],
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "peerDependencies": {
+    "react": ">=17"
+  },
+  "scripts": {
+    "demo": "open demo/index.html"
+  }
+}
